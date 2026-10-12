@@ -8,6 +8,7 @@ const svg=s=>`<svg viewBox="0 0 520 300" role="img" aria-label="Наглядна
 const tiles=(n,v='x')=>Array.from({length:n},()=>`<span class="tile">${v}</span>`).join('');
 const axes=()=>{let s='';for(let i=0;i<=10;i++){s+=line(60+i*40,20,60+i*40,280,'#edf0e9')+line(60,30+i*24,460,30+i*24,'#edf0e9')}return s+line(60,150,470,150)+line(260,280,260,15)+text(480,145,'x')+text(274,20,'y')+text(247,170,'0');};
 const conf={
+curves:['Меняй x и сравни три точки на графиках. Зелёный — модуль, золотой — квадрат, синий — куб.',['x',-2,2,-1]],
 divisibility:['Выбери число. Посмотри, какие делители подходят без остатка.',['Число',2,60,24]],
 intervals:['Передвигай точку по прямой. Проверь, принадлежит ли она промежутку (−2;3].',['x',-5,5,0]],
 numberline:['Начни в точке a. Прибавление b сдвигает вправо, если b положительно, и влево, если отрицательно.',['a',-5,5,-2],['b',-5,5,3]],
@@ -56,7 +57,8 @@ graph:['Добавь или убери диагональ графа. Перес
 euler:['Выбирай соседнюю вершину. Пройди каждое ребро один раз; использованное ребро станет золотым.']};
 function render(kind,vals,state={}){
 const a=vals[0]??0,b=vals[1]??0;let scene='',result='';
-if(kind==='divisibility'){let ds=[];for(let i=1;i<=a;i++)if(a%i===0)ds.push(i);scene=ds.map(v=>`<span class="tile">${v}</span>`).join('');result=`Делители ${a}: ${ds.join(', ')}. ${ds.length===2?'Число простое.':'Число составное.'}`;}
+if(kind==='curves'){let paths=[{f:x=>Math.abs(x),c:'#26654f',label:'|x|'},{f:x=>x*x,c:'#d99e50',label:'x²'},{f:x=>x*x*x,c:'#688bb6',label:'x³'}];scene=axes()+'<defs><clipPath id="curvesclip"><rect x="60" y="20" width="400" height="260"/></clipPath></defs><g clip-path="url(#curvesclip)">'+paths.map(p=>'<polyline points="'+Array.from({length:201},(_,i)=>{let x=-5+i/20;return (260+40*x)+','+(150-24*p.f(x))}).join(' ')+'" fill="none" stroke="'+p.c+'" stroke-width="3"/>'+dot(260+40*a,150-24*p.f(a))).join('')+'</g>';scene=svg(scene);result=`При x=${a}: |x|=${Math.abs(a)}, x²=${a*a}, x³=${a*a*a}. Точка куба может выйти за видимую часть сетки.`;}
+else if(kind==='divisibility'){let ds=[];for(let i=1;i<=a;i++)if(a%i===0)ds.push(i);scene=ds.map(v=>`<span class="tile">${v}</span>`).join('');result=`Делители ${a}: ${ds.join(', ')}. ${ds.length===2?'Число простое.':'Число составное.'}`;}
 else if(kind==='intervals'){scene=svg(line(40,150,480,150)+line(180,150,380,150,'#d99e50')+`<circle cx="180" cy="150" r="7" fill="white" stroke="#26654f" stroke-width="3"/>`+dot(380,150)+dot(260+a*40,120)+text(180,185,'−2')+text(380,185,'3')+text(260+a*40,95,a));result=`x=${a}: ${a>-2&&a<=3?'входит':'не входит'} в (−2;3]. −2 исключено, 3 включено.`;}
 else if(kind==='numberline'){let sum=a+b;scene=svg(line(30,150,490,150)+Array.from({length:21},(_,i)=>{let x=30+i*23;return line(x,144,x,156)+text(x,180,i-10)}).join('')+line(260+a*23,110,260+sum*23,110,'#d99e50')+dot(260+a*23,150)+dot(260+sum*23,150)+text(260+sum*23,80,'результат'));result=`${a} + (${b}) = ${sum}`;}
 else if(kind==='fraction'){let n=Math.min(a,b);scene=Array.from({length:a},(_,i)=>`<span class="tile" style="background:${i<n?'#e5b777':'#edf0e9'}">${i+1}</span>`).join('');result=`Взяли ${n} из ${a}: ${n}/${a} ≈ ${fmt(n/a)}. Числитель ограничен размером целого.`;}
