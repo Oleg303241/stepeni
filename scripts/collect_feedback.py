@@ -19,6 +19,7 @@ def format_document(issues, comments=None):
     comments = comments or {}
     selected = sorted((i for i in issues if not i.get('pull_request') and MARKER in (i.get('body') or '')), key=lambda i: i['number'])
     lines = ['ЗАМЕЧАНИЯ К УЧЕБНИКУ МАТЕМАТИКИ — 7 КЛАСС',
+             'Этот файл собирается автоматически; исходные сообщения и исправления остаются в обсуждениях GitHub.',
              'Единый журнал обращений пользователей сайта https://oleg303241.github.io/stepeni/',
              'Источник: публичные обращения GitHub с меткой [math7-feedback] в тексте.',
              'Открытое обращение = ожидает разбора. Закрытое = завершено владельцем; результат указан в обсуждении.',
